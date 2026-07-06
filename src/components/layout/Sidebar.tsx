@@ -2,7 +2,7 @@ import { useStore } from "../../store/StoreContext";
 import type { Role } from "../../types";
 
 export type AgentScreen = "dashboard" | "plan";
-export type ManagerScreen = "team" | "approvals";
+export type ManagerScreen = "team" | "approvals" | "activity";
 
 interface SidebarProps {
   role: Role;
@@ -62,7 +62,7 @@ export default function Sidebar({ role, agentScreen, managerScreen, onAgentNav, 
         </>
       ) : (
         <>
-          <NavButton active={managerScreen === "team"} icon="⌂" label="Team Dashboard" collapsed={collapsed} onClick={() => onManagerNav("team")} />
+          <NavButton active={managerScreen === "team"} icon="⌂" label="Dashboard" collapsed={collapsed} onClick={() => onManagerNav("team")} />
           <NavButton
             active={managerScreen === "approvals"}
             icon="◔"
@@ -71,6 +71,7 @@ export default function Sidebar({ role, agentScreen, managerScreen, onAgentNav, 
             badge={pendingCount || undefined}
             onClick={() => onManagerNav("approvals")}
           />
+          <NavButton active={managerScreen === "activity"} icon="📈" label="Activity Plan" collapsed={collapsed} onClick={() => onManagerNav("activity")} />
         </>
       )}
 

@@ -6,12 +6,14 @@ import AgentDashboard from "./components/agent/AgentDashboard";
 import MyPlan from "./components/agent/MyPlan";
 import TeamDashboard from "./components/manager/TeamDashboard";
 import PlanApprovals from "./components/manager/PlanApprovals";
+import ActivityPlan from "./components/manager/ActivityPlan";
 
 const TITLES: Record<string, [string, string]> = {
   dashboard: ["Dashboard", "Agent workspace"],
   plan: ["My Plan", "Agent workspace"],
-  team: ["Team Dashboard", "Manager workspace"],
+  team: ["Dashboard", "Manager workspace"],
   approvals: ["Plan Approvals", "Manager workspace"],
+  activity: ["Activity Plan", "Manager workspace"],
 };
 
 function Screens() {
@@ -39,8 +41,10 @@ function Screens() {
         )
       ) : managerScreen === "team" ? (
         <TeamDashboard onOpenApprovals={() => setManagerScreen("approvals")} />
-      ) : (
+      ) : managerScreen === "approvals" ? (
         <PlanApprovals />
+      ) : (
+        <ActivityPlan />
       )}
     </AppShell>
   );

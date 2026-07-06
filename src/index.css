@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Manrope", "Inter", system-ui, sans-serif;
+
+  --color-ink: #0a2540;
+  --color-ink-secondary: #3d4f61;
+  --color-brand-blue: #1366b8;
+  --color-brand-blue-dark: #0c4f92;
+  --color-brand-green: #3f8f2e;
+  --color-brand-amber: #9a5b00;
+  --color-brand-red: #b3261e;
+  --color-app-bg: #f4f7fb;
+  --color-card: #ffffff;
+  --color-line: #e2eaf3;
+
+  --radius-app: 14px;
+  --shadow-app: 0 6px 20px rgba(10, 37, 64, 0.06);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-app-bg);
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@keyframes ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(19, 102, 184, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(19, 102, 184, 0);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.28s ease-out both;
+}
+.animate-toast-in {
+  animation: toast-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.animate-check-draw {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: check-draw 0.45s 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.animate-ring-pulse {
+  animation: ring-pulse 1.1s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

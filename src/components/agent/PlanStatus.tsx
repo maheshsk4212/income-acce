@@ -1,19 +1,14 @@
+import { useState } from "react";
 import { useStore } from "../../store/StoreContext";
 import { fmt, fmtDate } from "../../lib/format";
 import { activityPlan, blendedAnnualPremium, conversionRates, projectedIncome } from "../../lib/calc";
 import StatusBadge from "../shared/StatusBadge";
-
-const ACTIVITY_DOT: Record<string, string> = {
-  "New Contacts": "#1366B8",
-  "Fact Findings": "#9333EA",
-  "Closing Meetings": "#0891B2",
-  Policies: "#16A34A",
-  Referrals: "#D97706",
-};
+import FunnelChart from "../shared/FunnelChart";
 
 export default function PlanStatus({ onEdit }: { onEdit: () => void }) {
   const { currentAgent, approvePlan } = useStore();
   const plan = currentAgent.plan!;
+  const [showDetail, setShowDetail] = useState(false);
 
   const isAwaitingAcceptance = plan.status === "pending" && plan.source === "manager_assigned";
   const isPendingApproval = plan.status === "pending" && plan.source === "self_set";
@@ -82,54 +77,51 @@ export default function PlanStatus({ onEdit }: { onEdit: () => void }) {
           <Stat label="Avg premium" value={fmt(blendedPremium)} />
         </div>
 
-        <h4 className="mt-5 text-xs font-bold uppercase tracking-wider text-ink-secondary">Activity targets</h4>
-        <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {activity.map((row) => (
-            <div key={row.name} className="rounded-lg border border-line px-3 py-2.5 text-center transition-colors hover:bg-app-bg">
-              <span className="mx-auto mb-1 block h-1.5 w-1.5 rounded-full" style={{ background: ACTIVITY_DOT[row.name] }} />
-              <div className="text-xl font-extrabold text-ink">{row.perMonth}</div>
-              <div className="text-[0.6rem] uppercase tracking-wide text-ink-secondary">{row.name}</div>
-              <div className="text-[0.58rem] text-ink-secondary/70">per month</div>
-            </div>
-          ))}
+        <h4 className="mt-5 text-center text-xs font-bold uppercase tracking-wider text-ink-secondary">Your activity funnel · per month</h4>
+        <div className="mt-3">
+          <FunnelChart
+            stages={[
+              { label: "New Contacts", value: activity[0].perMonth },
+              { label: "Fact Findings", value: activity[1].perMonth },
+              { label: "Closing Meetings", value: activity[2].perMonth },
+              { label: "Policies", value: activity[3].perMonth },
+            ]}
+          />
+          <div className="mx-auto mt-3 flex max-w-md items-center justify-center gap-2 rounded-lg bg-app-bg px-3 py-2 text-center text-[0.78rem] text-ink-secondary">
+            <span aria-hidden="true">↻</span> Plus <b className="text-ink">{activity[4].perMonth}</b> referrals/month ({conversion.referralsPerPolicy}:1
+            per policy)
+          </div>
         </div>
 
-        <h4 className="mt-5 text-xs font-bold uppercase tracking-wider text-ink-secondary">Conversion rates</h4>
-        <div className="mt-2 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {[
-            ["New Contacts → Fact Findings", `${conversion.contactsToFactFindings}:1`],
-            ["Fact Findings → Closing Meetings", `${conversion.factFindingsToClosingMeetings}:1`],
-            ["Closing Meetings → Policies", `${conversion.closingMeetingsToPolicies}:1`],
-            ["Referrals per policy", `${conversion.referralsPerPolicy}:1`],
-          ].map(([label, value]) => (
-            <div key={label} className="rounded-lg bg-app-bg px-3 py-2 transition-colors hover:bg-blue-50/60">
-              <div className="text-[0.58rem] font-bold uppercase tracking-wider text-ink-secondary">{label}</div>
-              <div className="text-lg font-extrabold text-ink">{value}</div>
-            </div>
-          ))}
-        </div>
+        <button
+          onClick={() => setShowDetail((v) => !v)}
+          className="mx-auto mt-4 block text-xs font-bold text-brand-blue transition hover:text-brand-blue-dark"
+        >
+          {showDetail ? "Hide" : "Show"} weekly &amp; yearly breakdown {showDetail ? "▲" : "▼"}
+        </button>
 
-        <h4 className="mt-5 text-xs font-bold uppercase tracking-wider text-ink-secondary">Your detailed activity plan list</h4>
-        <table className="mt-2 w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-line text-[0.62rem] uppercase tracking-wider text-ink-secondary">
-              <th className="py-2">Activity</th>
-              <th className="py-2 text-right">Per week</th>
-              <th className="py-2 text-right">Per month</th>
-              <th className="py-2 text-right">Per year</th>
-            </tr>
-          </thead>
-          <tbody>
-            {activity.map((row) => (
-              <tr key={row.name} className="border-b border-line transition-colors last:border-none hover:bg-app-bg/70">
-                <td className="py-2 font-semibold text-ink">{row.name}</td>
-                <td className="py-2 text-right text-brand-blue-dark font-semibold">{row.perWeek}</td>
-                <td className="py-2 text-right text-ink">{row.perMonth}</td>
-                <td className="py-2 text-right text-ink-secondary">{row.perYear.toLocaleString()}</td>
+        {showDetail && (
+          <table className="animate-fade-in-up mt-3 w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-[0.62rem] uppercase tracking-wider text-ink-secondary">
+                <th className="py-2">Activity</th>
+                <th className="py-2 text-right">Per week</th>
+                <th className="py-2 text-right">Per month</th>
+                <th className="py-2 text-right">Per year</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {activity.map((row) => (
+                <tr key={row.name} className="border-b border-line transition-colors last:border-none hover:bg-app-bg/70">
+                  <td className="py-2 font-semibold text-ink">{row.name}</td>
+                  <td className="py-2 text-right text-brand-blue-dark font-semibold">{row.perWeek}</td>
+                  <td className="py-2 text-right text-ink">{row.perMonth}</td>
+                  <td className="py-2 text-right text-ink-secondary">{row.perYear.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

@@ -22,6 +22,7 @@ import type { PremiumRates, ProductMix } from "../../types";
 import CommissionChart, { commissionBreakdownList, type ChartRow } from "./CommissionChart";
 import SuccessModal from "../shared/SuccessModal";
 import HistoricalTables from "../shared/HistoricalTables";
+import FunnelChart from "../shared/FunnelChart";
 
 const GROWTH_CHIPS = [10, 20, 30, 40, 50];
 const DEFAULT_MIX: ProductMix = { ah: 25, term: 40, life: 35 };
@@ -62,6 +63,9 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
   const [projTab, setProjTab] = useState<"current" | "projection" | "table">("projection");
   const [yearScope, setYearScope] = useState<"current" | "all">("current");
   const [tableYearIdx, setTableYearIdx] = useState(0);
+  const [showActivityDetail, setShowActivityDetail] = useState(false);
+  const [showHistorical, setShowHistorical] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const monthly = monthlySeries(policiesPerMonth, mix, avgPremium);
   const yearly = yearlySeries(policiesPerMonth, mix, avgPremium);
@@ -238,9 +242,17 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
               />
             </div>
 
-            <div className="mt-8">
-              <HistoricalTables actualMonths={actualMonths} policiesPerMonth={policiesPerMonth} />
-            </div>
+            <button
+              onClick={() => setShowHistorical((v) => !v)}
+              className="mx-auto mt-8 block text-xs font-bold text-brand-blue transition hover:text-brand-blue-dark"
+            >
+              {showHistorical ? "Hide" : "Show"} my historical performance {showHistorical ? "▲" : "▼"}
+            </button>
+            {showHistorical && (
+              <div className="animate-fade-in-up mt-3">
+                <HistoricalTables actualMonths={actualMonths} policiesPerMonth={policiesPerMonth} />
+              </div>
+            )}
           </div>
         )}
 
@@ -304,56 +316,67 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
                   ))}
                 </div>
 
-                <div className="mt-4">
-                  <div className="text-xs font-semibold text-ink-secondary">Avg premium per category ($)</div>
-                  <div className="mt-1.5 grid grid-cols-3 gap-2">
-                    {(
-                      [
-                        ["ah", "A&H"],
-                        ["term", "Term"],
-                        ["life", "Life"],
-                      ] as [keyof PremiumRates, string][]
-                    ).map(([key, label]) => (
-                      <div key={key}>
-                        <label className="block text-[0.62rem] text-ink-secondary">{label}</label>
-                        <input
-                          type="number"
-                          value={avgPremium[key]}
-                          onChange={(e) => setAvgPremium((p) => ({ ...p, [key]: Number(e.target.value) || 0 }))}
-                          className="w-full rounded-lg border border-line px-2 py-1 text-sm focus:border-brand-blue focus:outline-none"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <button
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  className="mt-4 text-xs font-bold text-brand-blue transition hover:text-brand-blue-dark"
+                >
+                  {showAdvanced ? "Hide" : "Show"} advanced: premiums &amp; policy breakdown {showAdvanced ? "▲" : "▼"}
+                </button>
 
-                <div className="mt-4">
-                  <div className="text-xs font-semibold text-ink-secondary">Policy breakdown</div>
-                  <table className="mt-1.5 w-full text-left text-xs">
-                    <thead>
-                      <tr className="text-[0.6rem] uppercase tracking-wider text-ink-secondary">
-                        <th className="py-1">Category</th>
-                        <th className="py-1 text-right">Policies</th>
-                        <th className="py-1 text-right">Avg premium</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(
-                        [
-                          ["ah", "A&H"],
-                          ["term", "Term"],
-                          ["life", "Life"],
-                        ] as [keyof ProductMix, string][]
-                      ).map(([key, label]) => (
-                        <tr key={key} className="border-t border-line">
-                          <td className="py-1">{label}</td>
-                          <td className="py-1 text-right">{(Math.round((policiesPerMonth * mix[key]) / 10) / 10).toFixed(1)}</td>
-                          <td className="py-1 text-right">{fmt(avgPremium[key])}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                {showAdvanced && (
+                  <div className="animate-fade-in-up">
+                    <div className="mt-4">
+                      <div className="text-xs font-semibold text-ink-secondary">Avg premium per category ($)</div>
+                      <div className="mt-1.5 grid grid-cols-3 gap-2">
+                        {(
+                          [
+                            ["ah", "A&H"],
+                            ["term", "Term"],
+                            ["life", "Life"],
+                          ] as [keyof PremiumRates, string][]
+                        ).map(([key, label]) => (
+                          <div key={key}>
+                            <label className="block text-[0.62rem] text-ink-secondary">{label}</label>
+                            <input
+                              type="number"
+                              value={avgPremium[key]}
+                              onChange={(e) => setAvgPremium((p) => ({ ...p, [key]: Number(e.target.value) || 0 }))}
+                              className="w-full rounded-lg border border-line px-2 py-1 text-sm focus:border-brand-blue focus:outline-none"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <div className="text-xs font-semibold text-ink-secondary">Policy breakdown</div>
+                      <table className="mt-1.5 w-full text-left text-xs">
+                        <thead>
+                          <tr className="text-[0.6rem] uppercase tracking-wider text-ink-secondary">
+                            <th className="py-1">Category</th>
+                            <th className="py-1 text-right">Policies</th>
+                            <th className="py-1 text-right">Avg premium</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(
+                            [
+                              ["ah", "A&H"],
+                              ["term", "Term"],
+                              ["life", "Life"],
+                            ] as [keyof ProductMix, string][]
+                          ).map(([key, label]) => (
+                            <tr key={key} className="border-t border-line">
+                              <td className="py-1">{label}</td>
+                              <td className="py-1 text-right">{(Math.round((policiesPerMonth * mix[key]) / 10) / 10).toFixed(1)}</td>
+                              <td className="py-1 text-right">{fmt(avgPremium[key])}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -507,40 +530,52 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
         {step === 3 && (
           <div key="step3" className="animate-fade-in-up">
             <h3 className="text-center font-display text-[1rem]">Step 3: Review your activity plan</h3>
-            <p className="mt-1 text-center text-[0.8rem] text-ink-secondary">How {policiesPerMonth} policies/month breaks down into weekly activity.</p>
-            <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-              {[
-                ["New Contacts → Fact Findings", `${conversion.contactsToFactFindings}:1`],
-                ["Fact Findings → Closing Meetings", `${conversion.factFindingsToClosingMeetings}:1`],
-                ["Closing Meetings → Policies", `${conversion.closingMeetingsToPolicies}:1`],
-                ["Referrals per policy", `${conversion.referralsPerPolicy}:1`],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-lg bg-app-bg px-3 py-2">
-                  <div className="text-[0.58rem] font-bold uppercase tracking-wider text-ink-secondary">{label}</div>
-                  <div className="text-lg font-extrabold text-ink">{value}</div>
-                </div>
-              ))}
+            <p className="mt-1 text-center text-[0.8rem] text-ink-secondary">How your {policiesPerMonth} policies/month get there.</p>
+
+            <div className="mt-6">
+              <FunnelChart
+                stages={[
+                  { label: "New Contacts", value: activity[0].perMonth },
+                  { label: "Fact Findings", value: activity[1].perMonth },
+                  { label: "Closing Meetings", value: activity[2].perMonth },
+                  { label: "Policies", value: activity[3].perMonth },
+                ]}
+              />
+              <div className="mx-auto mt-3 flex max-w-md items-center justify-center gap-2 rounded-lg bg-app-bg px-3 py-2 text-center text-[0.78rem] text-ink-secondary">
+                <span aria-hidden="true">↻</span> Plus <b className="text-ink">{activity[4].perMonth}</b> referrals/month ({conversion.referralsPerPolicy}
+                :1 per policy)
+              </div>
             </div>
-            <table className="mt-4 w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-line text-[0.62rem] uppercase tracking-wider text-ink-secondary">
-                  <th className="py-2">Activity</th>
-                  <th className="py-2 text-right">Per week</th>
-                  <th className="py-2 text-right">Per month</th>
-                  <th className="py-2 text-right">Per year</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activity.map((row) => (
-                  <tr key={row.name} className="border-b border-line last:border-none">
-                    <td className="py-2 font-semibold text-ink">{row.name}</td>
-                    <td className="py-2 text-right text-brand-blue-dark font-semibold">{row.perWeek}</td>
-                    <td className="py-2 text-right text-ink">{row.perMonth}</td>
-                    <td className="py-2 text-right text-ink-secondary">{row.perYear.toLocaleString()}</td>
+
+            <button
+              onClick={() => setShowActivityDetail((v) => !v)}
+              className="mx-auto mt-5 block text-xs font-bold text-brand-blue transition hover:text-brand-blue-dark"
+            >
+              {showActivityDetail ? "Hide" : "Show"} weekly &amp; yearly breakdown {showActivityDetail ? "▲" : "▼"}
+            </button>
+
+            {showActivityDetail && (
+              <table className="animate-fade-in-up mt-3 w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line text-[0.62rem] uppercase tracking-wider text-ink-secondary">
+                    <th className="py-2">Activity</th>
+                    <th className="py-2 text-right">Per week</th>
+                    <th className="py-2 text-right">Per month</th>
+                    <th className="py-2 text-right">Per year</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {activity.map((row) => (
+                    <tr key={row.name} className="border-b border-line last:border-none">
+                      <td className="py-2 font-semibold text-ink">{row.name}</td>
+                      <td className="py-2 text-right text-brand-blue-dark font-semibold">{row.perWeek}</td>
+                      <td className="py-2 text-right text-ink">{row.perMonth}</td>
+                      <td className="py-2 text-right text-ink-secondary">{row.perYear.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
 

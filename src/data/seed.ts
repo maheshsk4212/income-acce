@@ -30,6 +30,7 @@ export const seedTeam: TeamMember[] = [
       policiesPerMonth: 12,
       productMix: { ah: 20, term: 40, life: 40 },
       avgPremium: DEFAULT_PREMIUM_RATES,
+      submittedAt: "2026-06-25T09:12:00Z",
     },
   },
   {
@@ -58,6 +59,7 @@ export const seedTeam: TeamMember[] = [
       policiesPerMonth: 16,
       productMix: { ah: 15, term: 45, life: 40 },
       avgPremium: DEFAULT_PREMIUM_RATES,
+      submittedAt: "2026-06-29T06:31:00Z",
     },
   },
   {
@@ -77,6 +79,7 @@ export const seedTeam: TeamMember[] = [
       productMix: { ah: 30, term: 30, life: 40 },
       avgPremium: DEFAULT_PREMIUM_RATES,
       managerNote: "Product mix looks aggressive on Life given her book. Rebalance toward Term and resubmit.",
+      submittedAt: "2026-06-24T14:05:00Z",
     },
   },
   {

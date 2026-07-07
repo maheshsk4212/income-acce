@@ -22,6 +22,7 @@ export interface Plan {
   productMix: ProductMix;
   avgPremium: PremiumRates;
   managerNote?: string;
+  submittedAt: string; // ISO date
 }
 
 export interface TeamMember {

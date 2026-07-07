@@ -11,10 +11,11 @@ interface AppShellProps {
   onManagerNav: (s: ManagerScreen) => void;
   title: string;
   subtitle: string;
+  onBackToHome: () => void;
   children: ReactNode;
 }
 
-export default function AppShell({ agentScreen, managerScreen, onAgentNav, onManagerNav, title, subtitle, children }: AppShellProps) {
+export default function AppShell({ agentScreen, managerScreen, onAgentNav, onManagerNav, title, subtitle, onBackToHome, children }: AppShellProps) {
   const { role } = useStore();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -29,7 +30,7 @@ export default function AppShell({ agentScreen, managerScreen, onAgentNav, onMan
         collapsed={collapsed}
       />
       <div className={`flex min-h-screen flex-col transition-all ${collapsed ? "ml-16" : "ml-60"}`}>
-        <TopBar title={title} subtitle={subtitle} onToggleSidebar={() => setCollapsed((c) => !c)} />
+        <TopBar title={title} subtitle={subtitle} onToggleSidebar={() => setCollapsed((c) => !c)} onBackToHome={onBackToHome} />
         <div className="flex-1 px-5 py-4 pb-16">{children}</div>
       </div>
       <Toast />

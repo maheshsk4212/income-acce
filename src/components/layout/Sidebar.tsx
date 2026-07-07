@@ -1,7 +1,7 @@
 import { useStore } from "../../store/StoreContext";
 import type { Role } from "../../types";
 
-export type AgentScreen = "dashboard" | "plan";
+export type AgentScreen = "dashboard" | "plan" | "progress";
 export type ManagerScreen = "team" | "approvals" | "activity";
 
 interface SidebarProps {
@@ -51,6 +51,7 @@ export default function Sidebar({ role, agentScreen, managerScreen, onAgentNav, 
         <>
           <NavButton active={agentScreen === "dashboard"} icon="⌂" label="Dashboard" collapsed={collapsed} onClick={() => onAgentNav("dashboard")} />
           <NavButton active={agentScreen === "plan"} icon="◎" label="My Plan" collapsed={collapsed} onClick={() => onAgentNav("plan")} />
+          <NavButton active={agentScreen === "progress"} icon="📈" label="My Progress" collapsed={collapsed} onClick={() => onAgentNav("progress")} />
           {!collapsed && (
             <div className="mx-1 mt-3 rounded-lg bg-white/5 p-2.5">
               <div className="text-[0.6rem] uppercase tracking-wider text-slate-400">My plan status</div>

@@ -5,9 +5,10 @@ interface TopBarProps {
   title: string;
   subtitle: string;
   onToggleSidebar: () => void;
+  onBackToHome: () => void;
 }
 
-export default function TopBar({ title, subtitle, onToggleSidebar }: TopBarProps) {
+export default function TopBar({ title, subtitle, onToggleSidebar, onBackToHome }: TopBarProps) {
   const { role, setRole } = useStore();
 
   return (
@@ -23,6 +24,13 @@ export default function TopBar({ title, subtitle, onToggleSidebar }: TopBarProps
         {subtitle}
         <b className="block font-display text-[0.95rem] text-ink">{title}</b>
       </div>
+
+      <button
+        onClick={onBackToHome}
+        className="rounded-lg border border-line bg-card px-3 py-1.5 text-xs font-bold text-ink-secondary transition hover:border-brand-blue hover:text-brand-blue-dark active:scale-95"
+      >
+        ← Back to Home
+      </button>
 
       <div className="ml-auto flex gap-1 rounded-full border border-line bg-card p-1">
         {(["agent", "manager"] as Role[]).map((r) => (

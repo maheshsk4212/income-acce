@@ -45,6 +45,7 @@ function reducer(state: State, action: Action): State {
           policiesPerMonth: action.draft.policiesPerMonth,
           productMix: action.draft.productMix,
           avgPremium: action.draft.avgPremium,
+          submittedAt: new Date().toISOString(),
         } satisfies Plan,
       }));
       const agent = team.find((m) => m.id === action.agentId);
@@ -62,6 +63,7 @@ function reducer(state: State, action: Action): State {
           policiesPerMonth: m.plan?.policiesPerMonth ?? Math.max(4, Math.round(m.policiesMtd || 6)),
           productMix: m.plan?.productMix ?? { ah: 25, term: 40, life: 35 },
           avgPremium: m.plan?.avgPremium ?? DEFAULT_PREMIUM_RATES,
+          submittedAt: new Date().toISOString(),
         } satisfies Plan,
       }));
       const agent = team.find((m) => m.id === action.agentId);

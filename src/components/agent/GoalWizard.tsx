@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "../../store/StoreContext";
 import { fmt } from "../../lib/format";
 import {
-  activityForPolicies,
   activityPlan,
   CURRENT_MONTH_INDEX,
   COMMISSION_COMPONENTS,
@@ -22,6 +21,7 @@ import {
 import type { PremiumRates, ProductMix } from "../../types";
 import CommissionChart, { commissionBreakdownList, type ChartRow } from "./CommissionChart";
 import SuccessModal from "../shared/SuccessModal";
+import HistoricalTables from "../shared/HistoricalTables";
 
 const GROWTH_CHIPS = [10, 20, 30, 40, 50];
 const DEFAULT_MIX: ProductMix = { ah: 25, term: 40, life: 35 };
@@ -238,132 +238,8 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
               />
             </div>
 
-            <h4 className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-secondary">
-              <span aria-hidden="true">▤</span> Production &amp; Income Breakdown
-            </h4>
-            <div className="mt-2 overflow-x-auto rounded-lg bg-app-bg">
-              <table className="w-full min-w-[640px] text-left text-xs">
-                <thead>
-                  <tr className="text-[0.6rem] uppercase tracking-wider text-ink-secondary">
-                    <th className="px-3 py-2">Month</th>
-                    <th className="px-2 py-2 text-right">A&amp;H (#)</th>
-                    <th className="px-2 py-2 text-right">A&amp;H ($)</th>
-                    <th className="px-2 py-2 text-right">Term (#)</th>
-                    <th className="px-2 py-2 text-right">Term ($)</th>
-                    <th className="px-2 py-2 text-right">VUL (#)</th>
-                    <th className="px-2 py-2 text-right">VUL ($)</th>
-                    <th className="px-2 py-2 text-right">Total ($)</th>
-                    <th className="px-2 py-2 text-right">FYC</th>
-                    <th className="px-3 py-2 text-right">Income</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {actualMonths.map((r) => (
-                    <tr key={r.month} className="border-t border-line">
-                      <td className="px-3 py-1.5 font-semibold text-ink">{r.month}</td>
-                      <td className="px-2 py-1.5 text-right">{r.ahCount}</td>
-                      <td className="px-2 py-1.5 text-right">{fmt(r.ahPremium)}</td>
-                      <td className="px-2 py-1.5 text-right">{r.termCount}</td>
-                      <td className="px-2 py-1.5 text-right">{fmt(r.termPremium)}</td>
-                      <td className="px-2 py-1.5 text-right">{r.lifeCount}</td>
-                      <td className="px-2 py-1.5 text-right">{fmt(r.lifePremium)}</td>
-                      <td className="px-2 py-1.5 text-right font-semibold">{fmt(r.totalPremium)}</td>
-                      <td className="px-2 py-1.5 text-right">{fmt(r.fyc)}</td>
-                      <td className="px-3 py-1.5 text-right font-semibold text-brand-blue-dark">{fmt(r.total)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <h4 className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-secondary">
-              <span aria-hidden="true">▤</span> Income Breakdown
-            </h4>
-            <div className="mt-2 overflow-x-auto rounded-lg bg-app-bg">
-              <table className="w-full min-w-[560px] text-left text-xs">
-                <thead>
-                  <tr className="text-[0.6rem] uppercase tracking-wider text-ink-secondary">
-                    <th className="px-3 py-2">Income type</th>
-                    {actualMonths.map((r) => (
-                      <th key={r.month} className="px-2 py-2 text-right">
-                        {r.month}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMMISSION_COMPONENTS.map((c) => (
-                    <tr key={c.key} className="border-t border-line">
-                      <td className="px-3 py-1.5 text-ink">{c.label}</td>
-                      {actualMonths.map((r) => (
-                        <td key={r.month} className="px-2 py-1.5 text-right text-ink-secondary">
-                          {r[c.key] > 0 ? fmt(r[c.key]) : "—"}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                  <tr className="border-t border-line font-bold text-brand-blue-dark">
-                    <td className="px-3 py-1.5">Total Earned</td>
-                    {actualMonths.map((r) => (
-                      <td key={r.month} className="px-2 py-1.5 text-right">
-                        {fmt(r.total)}
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h4 className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-secondary">
-              <span aria-hidden="true">📈</span> Historical Performance
-            </h4>
-            <div className="mt-2 overflow-x-auto rounded-lg bg-app-bg">
-              <table className="w-full min-w-[720px] text-left text-xs">
-                <thead>
-                  <tr className="text-[0.6rem] uppercase tracking-wider text-ink-secondary">
-                    <th className="px-3 py-2">Month</th>
-                    <th className="px-2 py-2 text-right">New Contacts</th>
-                    <th className="px-2 py-2 text-right">Fact Findings</th>
-                    <th className="px-2 py-2 text-right">Closing Meetings</th>
-                    <th className="px-2 py-2 text-right">Policies</th>
-                    <th className="px-2 py-2 text-right">Referrals</th>
-                    <th className="px-2 py-2 text-right">R1</th>
-                    <th className="px-2 py-2 text-right">R2</th>
-                    <th className="px-2 py-2 text-right">R3</th>
-                    <th className="px-3 py-2 text-right">R4</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {actualMonths.map((r) => {
-                    const act = activityForPolicies(r.policies);
-                    const tgt = activityForPolicies(policiesPerMonth);
-                    return (
-                      <tr key={r.month} className="border-t border-line">
-                        <td className="px-3 py-1.5 font-semibold text-ink">{r.month}</td>
-                        <td className="px-2 py-1.5 text-right">
-                          {act.newContacts}/{tgt.newContacts}
-                        </td>
-                        <td className="px-2 py-1.5 text-right">
-                          {act.factFindings}/{tgt.factFindings}
-                        </td>
-                        <td className="px-2 py-1.5 text-right">
-                          {act.closingMeetings}/{tgt.closingMeetings}
-                        </td>
-                        <td className="px-2 py-1.5 text-right">
-                          {act.policies}/{tgt.policies}
-                        </td>
-                        <td className="px-2 py-1.5 text-right">
-                          {act.referrals}/{tgt.referrals}
-                        </td>
-                        <td className="px-2 py-1.5 text-right text-brand-blue-dark">{conversion.contactsToFactFindings}</td>
-                        <td className="px-2 py-1.5 text-right text-brand-blue-dark">{conversion.factFindingsToClosingMeetings}</td>
-                        <td className="px-2 py-1.5 text-right text-brand-blue-dark">{conversion.closingMeetingsToPolicies}</td>
-                        <td className="px-3 py-1.5 text-right text-brand-blue-dark">{conversion.referralsPerPolicy}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="mt-8">
+              <HistoricalTables actualMonths={actualMonths} policiesPerMonth={policiesPerMonth} />
             </div>
           </div>
         )}
@@ -569,7 +445,10 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
                           <tbody>
                             {COMMISSION_COMPONENTS.map((c) => (
                               <tr key={c.key} className="border-t border-line">
-                                <td className="py-1.5">{c.label}</td>
+                                <td className="py-1.5">
+                                  <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full" style={{ background: c.color }} />
+                                  {c.label}
+                                </td>
                                 {monthly.map((r) => (
                                   <td key={r.month} className={`py-1.5 text-right ${r.month === MONTHS[CURRENT_MONTH_INDEX] ? "font-bold text-brand-blue-dark" : "text-ink-secondary"}`}>
                                     {r[c.key] > 0 ? fmt(r[c.key]) : "—"}
@@ -599,7 +478,10 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
                         <tbody>
                           {COMMISSION_COMPONENTS.map((c) => (
                             <tr key={c.key} className="border-t border-line">
-                              <td className="py-1.5">{c.label}</td>
+                              <td className="py-1.5">
+                                <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full" style={{ background: c.color }} />
+                                {c.label}
+                              </td>
                               <td className="py-1.5 text-right">{fmt(yearly[tableYearIdx][c.key])}</td>
                             </tr>
                           ))}
@@ -665,14 +547,23 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
         {step === 4 && (
           <div key="step4" className="animate-fade-in-up">
             <h3 className="text-center font-display text-[1rem]">Step 4: Plan summary</h3>
-            <div className="mt-4 rounded-app bg-gradient-to-br from-ink to-brand-blue-dark p-5 text-white transition-transform duration-300 hover:scale-[1.01]">
+            <div className="relative mt-4 rounded-app bg-gradient-to-br from-ink to-brand-blue-dark p-5 text-white transition-transform duration-300 hover:scale-[1.01]">
+              <button
+                onClick={() => setStep(2)}
+                className="absolute right-4 top-4 rounded-full border border-white/30 px-2.5 py-1 text-[0.65rem] font-bold text-white transition hover:bg-white/10 active:scale-95"
+              >
+                ✎ Edit Plan
+              </button>
               <div className="text-center text-xs text-white/70">Monthly goal</div>
               <div className="text-center text-2xl font-extrabold">{fmt(goalIncome)}</div>
-              <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/20 pt-4 sm:grid-cols-4">
-                <MiniCard dark label="Total policies" value={String(policiesPerMonth)} />
-                <MiniCard dark label="Health & Accident" value={`${mix.ah}%`} />
-                <MiniCard dark label="Term Life" value={`${mix.term}%`} />
-                <MiniCard dark label="Universal Life" value={`${mix.life}%`} />
+              <div className="mt-4 border-t border-white/20 pt-4 text-center text-[0.68rem] text-white/70">Total policies</div>
+              <div className="text-center text-lg font-extrabold text-white">{policiesPerMonth}</div>
+              <p className="text-center text-[0.62rem] text-white/60">All policies across product categories</p>
+              <div className="mt-3 text-center text-[0.6rem] uppercase tracking-wider text-white/60">Policy split by product category</div>
+              <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <MiniCard dark label="Health & Accident" value={`${Math.round((policiesPerMonth * mix.ah) / 100)} (${mix.ah}%)`} />
+                <MiniCard dark label="Term Life" value={`${Math.round((policiesPerMonth * mix.term) / 100)} (${mix.term}%)`} />
+                <MiniCard dark label="Universal Life" value={`${Math.round((policiesPerMonth * mix.life) / 100)} (${mix.life}%)`} />
               </div>
             </div>
             <table className="mt-5 w-full text-left text-sm">
@@ -723,6 +614,15 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
         </div>
       </div>
 
+      {step === 4 && (
+        <button
+          onClick={() => setStep(1)}
+          className="mt-3 w-full rounded-app border border-line bg-card py-3 text-center text-sm font-bold text-ink-secondary shadow-app transition hover:border-brand-blue hover:text-brand-blue-dark active:scale-[0.99]"
+        >
+          ✎ Revise My Goal Targets
+        </button>
+      )}
+
       {showGuardrail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4" onClick={() => setShowGuardrail(false)}>
           <div
@@ -769,6 +669,7 @@ export default function GoalWizard({ onDone }: { onDone: () => void }) {
 
 function BreakdownList({ title, values, denom = "month" }: { title: string; values: Record<CommissionKey, number>; denom?: "month" | "year" }) {
   const items = commissionBreakdownList(values, denom);
+  const total = COMMISSION_COMPONENTS.reduce((s, c) => s + (values[c.key] || 0), 0);
   return (
     <div className="mt-4">
       <div className="text-[0.62rem] font-bold uppercase tracking-wider text-ink-secondary">{title}</div>
@@ -786,6 +687,13 @@ function BreakdownList({ title, values, denom = "month" }: { title: string; valu
           </div>
         ))}
         {items.length === 0 && <div className="py-2 text-xs text-ink-secondary">No commission components triggered this period.</div>}
+        <div className="flex items-center justify-between py-2">
+          <span className="text-xs font-bold text-ink">Total</span>
+          <span className="text-sm font-bold text-ink">
+            {fmt(total)}
+            {denom === "month" ? "/mo" : ""}
+          </span>
+        </div>
       </div>
     </div>
   );

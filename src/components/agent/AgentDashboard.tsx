@@ -1,9 +1,12 @@
 import { useStore } from "../../store/StoreContext";
 import { fmt } from "../../lib/format";
-import { pctOfGoal, projectedAnnualPremium, projectedIncome } from "../../lib/calc";
+import { monthlySeries, pctOfGoal, policyBenchmark, projectedAnnualPremium, projectedIncome } from "../../lib/calc";
 import ProgressRing from "../shared/ProgressRing";
 import KpiTile from "../shared/KpiTile";
 import StatusBadge from "../shared/StatusBadge";
+import HistoricalTables from "../shared/HistoricalTables";
+
+const DEFAULT_MIX = { ah: 25, term: 40, life: 35 };
 
 export default function AgentDashboard({ onGoToPlan }: { onGoToPlan: () => void }) {
   const { currentAgent } = useStore();
@@ -13,6 +16,16 @@ export default function AgentDashboard({ onGoToPlan }: { onGoToPlan: () => void 
   const goal = plan ? plan.goalIncome : currentAgent.targetIncome;
   const pct = pctOfGoal(projIncome, goal);
   const anp = plan ? projectedAnnualPremium(plan.policiesPerMonth, plan.productMix, plan.avgPremium) : 0;
+
+  const benchmarkPolicies = policyBenchmark(currentAgent.grade, plan?.policiesPerMonth);
+  const monthly = monthlySeries(benchmarkPolicies, plan?.productMix ?? DEFAULT_MIX, plan?.avgPremium);
+  const actualMonths = monthly.filter((m) => m.isActual);
+  const ytdPolicies = actualMonths.reduce((s, m) => s + m.policies, 0);
+  const ytdAnp = actualMonths.reduce((s, m) => s + m.totalPremium, 0);
+  const ytdFyc = actualMonths.reduce((s, m) => s + m.fyc, 0);
+  const ytdAvgPolicies = Math.round((ytdPolicies / actualMonths.length) * 10) / 10;
+  const ytdAvgAnp = ytdAnp / actualMonths.length;
+  const ytdAvgFyc = ytdFyc / actualMonths.length;
 
   return (
     <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-12">
@@ -68,6 +81,42 @@ export default function AgentDashboard({ onGoToPlan }: { onGoToPlan: () => void 
           {plan?.status === "approved" && "Your plan is approved and live. Focus on hitting the monthly policy target."}
         </p>
       </div>
+
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:col-span-12">
+        <div className="rounded-app border border-line bg-card shadow-app p-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-app-bg text-brand-blue-dark">📅</div>
+          <h3 className="mt-2 font-display text-[0.9rem]">Yearly Goal</h3>
+          <p className="text-[0.72rem] text-ink-secondary">Full year tracking</p>
+          <div className="mt-3 grid grid-cols-3 gap-2 border-t border-line pt-3 text-center">
+            <MiniStat label="Policies" value={String(ytdPolicies)} />
+            <MiniStat label="ANP" value={fmt(ytdAnp)} />
+            <MiniStat label="FY Commission" value={fmt(ytdFyc)} />
+          </div>
+        </div>
+        <div className="rounded-app border border-brand-blue bg-blue-50 p-4 shadow-app">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-brand-blue-dark">🕐</div>
+          <h3 className="mt-2 font-display text-[0.9rem]">Monthly Avg</h3>
+          <p className="text-[0.72rem] text-ink-secondary">Year-to-date average</p>
+          <div className="mt-3 grid grid-cols-3 gap-2 border-t border-brand-blue/20 pt-3 text-center">
+            <MiniStat label="Policies" value={String(ytdAvgPolicies)} />
+            <MiniStat label="ANP" value={fmt(ytdAvgAnp)} />
+            <MiniStat label="FY Commission" value={fmt(ytdAvgFyc)} />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-app border border-line bg-card shadow-app p-4 lg:col-span-12">
+        <HistoricalTables actualMonths={actualMonths} policiesPerMonth={benchmarkPolicies} />
+      </div>
+    </div>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-sm font-extrabold text-ink">{value}</div>
+      <div className="text-[0.58rem] text-ink-secondary">{label}</div>
     </div>
   );
 }

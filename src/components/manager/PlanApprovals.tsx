@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../../store/StoreContext";
-import { fmt } from "../../lib/format";
+import { fmt, fmtDateShort, fmtDateTime } from "../../lib/format";
 import { activityPlan, pctOfGoal, projectedAnnualPremium, projectedIncome } from "../../lib/calc";
 import StatusBadge from "../shared/StatusBadge";
 import type { PlanStatus } from "../../types";
@@ -132,7 +132,10 @@ export default function PlanApprovals() {
                   <span className="text-sm font-bold text-ink">{m.name}</span>
                   <StatusBadge status={m.plan!.status} />
                 </div>
-                <div className="mt-0.5 text-[0.72rem] text-ink-secondary">Goal: {fmt(m.plan!.goalIncome)}</div>
+                <div className="mt-0.5 flex items-center justify-between text-[0.72rem] text-ink-secondary">
+                  <span>Goal: {fmt(m.plan!.goalIncome)}</span>
+                  <span className="text-ink-secondary/70">{fmtDateShort(m.plan!.submittedAt)}</span>
+                </div>
               </button>
             ))}
           </div>
@@ -189,7 +192,8 @@ function ApprovalDetail({
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="font-display text-[1.05rem] text-ink">{member.name}</div>
-          <div className="text-[0.74rem] text-ink-secondary">
+          <div className="text-[0.74rem] text-ink-secondary">Plan submitted on {fmtDateTime(plan.submittedAt)}</div>
+          <div className="mt-0.5 text-[0.72rem] text-ink-secondary">
             {member.grade} · {member.agency} · {isPending ? "awaiting your review" : plan.status === "approved" ? "approved and live" : "changes requested"}
           </div>
         </div>

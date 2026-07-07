@@ -1,7 +1,15 @@
 import { useStore } from "../../store/StoreContext";
-import { fmt } from "../../lib/format";
+import { fmt, fmtDate } from "../../lib/format";
 import { activityPlan, blendedAnnualPremium, conversionRates, projectedIncome } from "../../lib/calc";
 import StatusBadge from "../shared/StatusBadge";
+
+const ACTIVITY_DOT: Record<string, string> = {
+  "New Contacts": "#1366B8",
+  "Fact Findings": "#9333EA",
+  "Closing Meetings": "#0891B2",
+  Policies: "#16A34A",
+  Referrals: "#D97706",
+};
 
 export default function PlanStatus({ onEdit }: { onEdit: () => void }) {
   const { currentAgent, approvePlan } = useStore();
@@ -43,6 +51,7 @@ export default function PlanStatus({ onEdit }: { onEdit: () => void }) {
         <div className="animate-fade-in-up flex flex-wrap items-center gap-3 rounded-app border border-amber-200 bg-amber-50 px-4 py-3 lg:col-span-12">
           <StatusBadge status="pending" />
           <span className="text-sm font-medium text-brand-amber">This plan is with your manager for approval.</span>
+          <span className="ml-auto text-[0.7rem] text-brand-amber/80">Submitted {fmtDate(plan.submittedAt)}</span>
         </div>
       )}
       {isApproved && (
@@ -71,6 +80,18 @@ export default function PlanStatus({ onEdit }: { onEdit: () => void }) {
           <Stat label="Est. monthly income" value={fmt(projIncome)} />
           <Stat label="Policies / month" value={String(plan.policiesPerMonth)} />
           <Stat label="Avg premium" value={fmt(blendedPremium)} />
+        </div>
+
+        <h4 className="mt-5 text-xs font-bold uppercase tracking-wider text-ink-secondary">Activity targets</h4>
+        <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {activity.map((row) => (
+            <div key={row.name} className="rounded-lg border border-line px-3 py-2.5 text-center transition-colors hover:bg-app-bg">
+              <span className="mx-auto mb-1 block h-1.5 w-1.5 rounded-full" style={{ background: ACTIVITY_DOT[row.name] }} />
+              <div className="text-xl font-extrabold text-ink">{row.perMonth}</div>
+              <div className="text-[0.6rem] uppercase tracking-wide text-ink-secondary">{row.name}</div>
+              <div className="text-[0.58rem] text-ink-secondary/70">per month</div>
+            </div>
+          ))}
         </div>
 
         <h4 className="mt-5 text-xs font-bold uppercase tracking-wider text-ink-secondary">Conversion rates</h4>

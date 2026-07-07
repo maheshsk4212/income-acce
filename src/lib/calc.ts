@@ -394,3 +394,32 @@ export function teamActivityRow(member: MemberLike): TeamActivityRow {
     status: classifyAttainment(member.policiesMtd, targetPolicies),
   };
 }
+
+export interface MonthlyActivityRow extends TeamActivityRow {
+  month: string;
+}
+
+/** Month-by-month (actual months only) version of teamActivityRow, used for
+ *  "My Progress" YTD breakdowns — same ramp-toward-target assumption as the
+ *  rest of the historical tables. */
+export function monthlyActivityRows(member: MemberLike): MonthlyActivityRow[] {
+  const mix = member.plan?.productMix ?? UNPLANNED_MIX;
+  const rates = member.plan?.avgPremium ?? DEFAULT_PREMIUM_RATES;
+  const targetPolicies = policyBenchmark(member.grade, member.plan?.policiesPerMonth);
+  const series = monthlySeries(targetPolicies, mix, rates).filter((m) => m.isActual);
+  const targetActivity = activityForPolicies(targetPolicies);
+  const nopTarget = NOP_TARGET_BY_GRADE[member.grade] ?? 20;
+  const targetAnp = Math.round(targetPolicies * blendedAnnualPremium(mix, rates));
+
+  return series.map((row) => {
+    const actual = activityForPolicies(row.policies);
+    return {
+      month: row.month,
+      actual,
+      target: targetActivity,
+      nop: { actual: Math.round(actual.referrals / 8), target: nopTarget },
+      anp: { actual: Math.round(row.totalPremium), target: targetAnp },
+      status: classifyAttainment(row.policies, targetPolicies),
+    };
+  });
+}
